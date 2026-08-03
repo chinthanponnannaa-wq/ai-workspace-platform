@@ -1,9 +1,9 @@
 const User = require("../models/User");
+const Workspace = require("../../workspace/models/Workspace");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const registerUser = async (userData) => {
-
     const existingUser = await User.findOne({
         email: userData.email
     });
@@ -16,21 +16,31 @@ const registerUser = async (userData) => {
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-
     userData.password = hashedPassword;
 
     const user = await User.create(userData);
     user.password = undefined;
-    const token = jwt.sign(
-    {
-        id: user._id,
-        email: user.email
-    },
-    process.env.JWT_SECRET,
-    {
-        expiresIn: "7d"
+
+    // Automatically create default workspace for user
+    try {
+        await Workspace.create({
+            title: "Main Workspace",
+            owner: user._id
+        });
+    } catch (wsErr) {
+        console.warn("Could not auto-create default workspace:", wsErr.message);
     }
-);
+
+    const token = jwt.sign(
+        {
+            id: user._id,
+            email: user.email
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "7d"
+        }
+    );
 
     return {
         success: true,
@@ -39,8 +49,8 @@ const registerUser = async (userData) => {
         user
     };
 };
-const loginUser = async (userData) => {
 
+const loginUser = async (userData) => {
     const user = await User.findOne({
         email: userData.email
     });

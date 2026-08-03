@@ -3,6 +3,7 @@ const express = require("express");
 const {
     create,
     getAll,
+    update,
     remove
 } = require("../controllers/chat.controller");
 
@@ -20,6 +21,12 @@ router.get(
     "/workspace/:workspaceId",
     authMiddleware,
     getAll
+);
+
+router.patch(
+    "/:id",
+    authMiddleware,
+    update
 );
 
 router.delete(

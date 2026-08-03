@@ -5,17 +5,23 @@ const chatSchema = new mongoose.Schema(
         title: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
         },
 
         workspace: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Workspace",
-            required: true
-        }
+            required: true,
+        },
+
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
     }
 );
 
